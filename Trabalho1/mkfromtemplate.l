@@ -6,9 +6,10 @@
 	#include <unistd.h>
 	#include <fcntl.h>
 
-	char *nome = NULL, *email = NULL, *autor = NULL, *file = NULL;
+	char *nome = NULL, *email = NULL, *autor = NULL;
 	char **ficheiros = NULL, **diretorias = NULL;
 	int nFicheiros = 0, maxFicheiros = 1, nDiretorias = 0, maxDiretorias = 1;
+	FILE *fd = NULL;
 
 	void criarDiretoria(char* path);
 	void criarFicheiro(char* path);
@@ -17,59 +18,60 @@
 	int quantosTracos(char* string);
 	int quantosEspacos(char* string, int tracos);
 	char* concatenar(const char *s1, const char *s2);
+	void abrirFicheiro(char *file);
 %}
 %option noyywrap
-%x Meta Tree Make FileName FileNoName
+%x Meta Tree Make File
 
 EMAIL		[^\n\t\r@ ]+@([a-z]+\.)+[a-z]+
 EXT			([^.\n\t\r ]\.)*([^.\n\t\r ])+
-FILE		[^\/|?<>*:""\n\t\r]+
+FILE		[^ \/|?<>*:=""\n\t\r]+
 
 %%
 									BEGIN 0;
 
 ([ \n\t\r]|#[^\n]*)					;
 
-===\ meta							BEGIN Meta;
+^===\ meta\n						BEGIN Meta;
 
-===\ tree 							BEGIN Tree;
+^===\ tree\n 						BEGIN Tree;
 
 ==\ \{%name%\}\.{EXT}\n 			{
-										int i;
-										yytext[yyleng-1] = '\0';
-										for(i = yyleng - 1; yytext[i] != '.'; i--);
-										file = concatenar(nome, yytext + i);
-										BEGIN FileName;
+										yytext[yyleng - 1] = '\0';
+										char *file = concatenar(nome, yytext + 11);
+										abrirFicheiro(file);
+										BEGIN File;
 									}
 
 ==\ {FILE}(\.{EXT})?\n 				{
-										yytext[yyleng-1] = '\0';
-										file = strdup(yytext + 3);
-										BEGIN FileNoName;
+										yytext[yyleng - 1] = '\0';
+										char *file = strdup(yytext + 3);
+										abrirFicheiro(file);
+										BEGIN File;
 									}
 
-<Meta>email:\ {EMAIL}\n 			{
-										yytext[yyleng-1] = '\0';
-										email = strdup(yytext+7);
+<Meta>^email:[ ]*{EMAIL}\n 			{
+										yytext[yyleng - 1] = '\0';
+										email = strdup(yytext + 7);
 										if(autor != NULL)
 											BEGIN 0;
 									}
 
-<Meta>author:\ [^\n\t\r]+\n			{
-										yytext[yyleng-1] = '\0';
-										autor = strdup(yytext+8);
+<Meta>^author:[ ]*[^\n\t\r]+\n			{
+										yytext[yyleng - 1] = '\0';
+										autor = strdup(yytext + 8);
 										if(email != NULL)
 											BEGIN 0;
 									}
 
-<Tree>[-]*[ ]*\{%name%\}\/\n		{
+<Tree>^[-]*[ ]*\{%name%\}\/\n		{
 										if(nDiretorias == 0)
-											diretorias = malloc(maxDiretorias*sizeof(char*));
+											diretorias = malloc(maxDiretorias * sizeof(char*));
 
 										if(nDiretorias == maxDiretorias)
 											duplicaBuffers("diretorias");
 
-										yytext[yyleng-1] = '\0';
+										yytext[yyleng - 1] = '\0';
 
 										int tracos = quantosTracos(yytext);
 										if(tracos != -1){
@@ -83,14 +85,14 @@ FILE		[^\/|?<>*:""\n\t\r]+
 										}
 									}
 
-<Tree>[-]+[ ]*\{%name%\}\.{EXT}\n	{
+<Tree>^[-]+[ ]*\{%name%\}\.{EXT}\n	{
 										if(nFicheiros == 0)
-											ficheiros = malloc(maxFicheiros*sizeof(char*));
+											ficheiros = malloc(maxFicheiros * sizeof(char*));
 
 										if(nFicheiros == maxFicheiros)
 											duplicaBuffers("ficheiros");
 
-										yytext[yyleng-1] = '\0';
+										yytext[yyleng - 1] = '\0';
 
 										int tracos = quantosTracos(yytext);
 										if(tracos != -1){
@@ -108,14 +110,14 @@ FILE		[^\/|?<>*:""\n\t\r]+
 										}
 									}
 
-<Tree>[-]*[ ]*{FILE}\/\n			{
+<Tree>^[-]*[ ]*{FILE}\/\n			{
 										if(nDiretorias == 0)
-											diretorias = malloc(maxDiretorias*sizeof(char*));
+											diretorias = malloc(maxDiretorias * sizeof(char*));
 
 										if(nDiretorias == maxDiretorias)
 											duplicaBuffers("diretorias");
 
-										yytext[yyleng-1] = '\0';
+										yytext[yyleng - 1] = '\0';
 
 										int tracos = quantosTracos(yytext);
 										if(tracos != -1){
@@ -129,9 +131,9 @@ FILE		[^\/|?<>*:""\n\t\r]+
 										}
 									}
 
-<Tree>[-]+[ ]*{FILE}(\.{EXT})?\n	{
+<Tree>^[-]+[ ]*{FILE}(\.{EXT})?\n	{
 										if(nFicheiros == 0)
-											ficheiros = malloc(maxFicheiros*sizeof(char*));
+											ficheiros = malloc(maxFicheiros * sizeof(char*));
 
 										if(nFicheiros == maxFicheiros)
 											duplicaBuffers("ficheiros");
@@ -150,29 +152,52 @@ FILE		[^\/|?<>*:""\n\t\r]+
 										}
 									}
 
-<Tree>=								BEGIN 0;
+<Tree>^=							BEGIN 0;
 
-<FileName>=							{
-										free(file);
+<File>\{%name%\}					{
+										if(fd != NULL)
+											fprintf(fd, "%s", nome);
+									}
+
+<File>\{%email%\}					{
+										if(fd != NULL)
+											fprintf(fd, "%s", email);
+									}
+
+<File>\{%author%\}					{
+										if(fd != NULL)
+											fprintf(fd, "%s", autor);
+									}
+
+<File>^=							{
+										if(fd != NULL){
+											fclose(fd);
+											fd = NULL;
+										}
 										BEGIN 0;
 									}
 
-<FileName>[^=]*						{
-										printf("Entrei no name %s\n", file);
-										printf("%s\n\n", yytext);
+<File>[^={]*						{
+										if(fd != NULL)
+											fprintf(fd, "%s", yytext);
 									}
 
-<FileNoName>=						{
-										free(file);
-										BEGIN 0;
-									}
-
-<FileNoName>[^=]*					{
-										printf("Entrei no no name %s\n", file);
-										printf("%s\n\n", yytext);
+<File>(\{|=)						{
+										if(fd != NULL)
+											fprintf(fd, "%c", yytext[0]);
 									}
 
 <*>.|\n|\r|\t						;
+
+<<EOF>>								{
+										free(nome);
+										free(email);
+										free(autor);
+ 										free(ficheiros);
+										free(diretorias);
+	 									fclose(fd);
+										return 0;
+									}
 
 %%
 
@@ -206,10 +231,10 @@ int quantosTracos(char* string){
 	Funcao que concatena duas strings, devolvendo o produto desta acao
 */
 char* concatenar(const char *s1, const char *s2){
-    char *result = malloc(strlen(s1) + strlen(s2) + 1);
-    strcpy(result, s1);
-    strcat(result, s2);
-    return result;
+    char *res = malloc(strlen(s1) + strlen(s2) + 1);
+    strcpy(res, s1);
+    strcat(res, s2);
+    return res;
 }
 
 /*
@@ -282,7 +307,7 @@ void duplicaBuffers(char* buffer){
 	char** aux = NULL;
 
 	if(!strcmp(buffer, "ficheiros")){
-		aux = malloc(maxFicheiros*sizeof(char*));
+		aux = malloc(maxFicheiros * sizeof(char*));
 		int i;	
 
 		for(i = 0; i < maxFicheiros; i++)
@@ -291,7 +316,7 @@ void duplicaBuffers(char* buffer){
 		free(ficheiros);
 
 		maxFicheiros += maxFicheiros;
-		ficheiros = malloc(maxFicheiros*sizeof(char*));
+		ficheiros = malloc(maxFicheiros * sizeof(char*));
 
 		for(i = 0; i < nFicheiros; i++)
 			ficheiros[i] = strdup(aux[i]);
@@ -299,7 +324,7 @@ void duplicaBuffers(char* buffer){
 		free(aux);
 	}
 	else if(!strcmp(buffer, "diretorias")){
-		aux = malloc(maxDiretorias*sizeof(char*));
+		aux = malloc(maxDiretorias * sizeof(char*));
 		int i;	
 
 		for(i = 0; i < maxDiretorias; i++)
@@ -308,12 +333,40 @@ void duplicaBuffers(char* buffer){
 		free(diretorias);
 
 		maxDiretorias += maxDiretorias;
-		diretorias = malloc(maxDiretorias*sizeof(char*));
+		diretorias = malloc(maxDiretorias * sizeof(char*));
 
 		for(i = 0; i < nDiretorias; i++)
 			diretorias[i] = strdup(aux[i]);
 
 		free(aux);
+	}
+}
+
+/*
+	Funcao que verifica se um dado nome de ficheiro e valido e, em caso afirmativo, abre um apontador para esse ficheiro
+
+	file - o nome do ficheiro
+*/
+void abrirFicheiro(char *file){
+	int i, j, k, flag = 0;
+
+	for(i = 0; i < nFicheiros && !flag; i++){
+		j = strlen(ficheiros[i]);
+		k = strlen(file);
+
+		for(; j > 0 && k > 0; j--, k--){
+			if(ficheiros[i][j-1] != file[k-1])
+				break;
+		}
+
+		if(k == 0){
+			flag = 1;
+			break;
+		}
+	}
+
+	if(flag){
+		fd = fopen(ficheiros[i], "w");
 	}
 }
 
@@ -338,15 +391,6 @@ int main(int argc, char* argv[]){
 		printf("Erro a fechar o ficheiro %s.\n", argv[2]);
 
 	yylex();
-	/*
-	printf("%s\n", nome);
-	printf("%s\n", email);
-	printf("%s\n", autor);
-	for(int i = 0; i < nFicheiros; i++)
-		printf("ficheiro: %s\n", ficheiros[i]);
 
-	for(int i = 0; i < nDiretorias; i++)
-		printf("diretoria: %s\n", diretorias[i]);
-	*/
 	return 0;
 }

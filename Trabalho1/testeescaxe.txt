@@ -1,0 +1,105 @@
+=== meta
+
+mail: merdas
+author: J.João
+email: jj@di.uminho.pt
+author: Inacio
+
+# "name" é dado por argumento de linha de comando (argv[1])
+
+=== tree
+
+{%name%}/
+- {%name%}.fl
+- biografia.txt
+-- MeusCarros/
+- Meus Carros/
+-- Alfa_Romeu.png
+-- Ferrari"Spider".jpeg
+-- Colecao\Privada/
+--- Nudes.paint
+- doc/
+-- {%name%}.md
+-- HowToGetAwayWithMurderer3.mp4
+-- Comi-te?.mp4
+- exemplo/
+--- conadepilada.txt
+-- mamasboas
+- README
+- Makefile
+
+=== Makefile
+
+{%name%}.exe : y.tab.o lex.yy.o
+	gcc -o {%name%}.exe y.tab.o lex.yy.o -ll
+
+y.tab.o : y.tab.c
+	gcc -c y.tab.c
+
+lex.yy.o : lex.yy.c
+	gcc -c lex.yy.c
+
+y.tab.c y.tab.h : {%name%}.y
+	yacc -d {%name%}.y
+
+lex.yy.c : {%name%}.l y.tab.h
+	flex {%name%}.l
+
+=== {%name%}.md
+# NAME
+
+{%name%} - o nosso fabuloso filtro ...FIXME
+
+## Synopsis
+
+   {%name%} file*
+
+## Description
+
+## See also
+
+## Author
+
+Comments and bug reports to {%author%}, {%email%}.
+
+=== {%name%}.fl
+%{
+#include <stdio.h>
+extern int yylex();
+int yyerror();
+%}
+%union{
+	int vint;
+}
+
+%token ERRO inteiro
+%type <vint> inteiro ABin
+
+
+%%
+SeqABin : ABin 			{ printf("soma = %d\n", $1); }
+		| SeqABin ABin  { printf("soma = %d\n", $2); }
+		;//Recursividade à esquerda é mais eficiente!!
+
+ABin : '(' ')' 						{ $$ = 0; }
+	 | '(' inteiro ABin ABin ')'	{ $$ = $2 + $3 + $4; }
+	 ;
+
+%%
+int main(){
+	yyparse();
+	return 0;
+}
+
+int yyerror(){
+	printf("Erro sintatico...\n");
+	return 0;
+}
+
+=== README
+
+FIXME: descrição sumária do filtro
+
+O {%author%} e dono de grande inteligencia, sendo ele capaz de criar o fantastico {%name%}.
+Nao confundir com {%nome%}.
+Peguem o {%mail} dele caso precisem. Te enganei, esta aqui {%email%}.

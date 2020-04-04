@@ -5,19 +5,15 @@
 	#include <sys/types.h>
 	#include <unistd.h>
 	#include <fcntl.h>
+	#include "mk.h"
 
 	char *nome = NULL, *email = NULL, *autor = NULL;
 	char **ficheiros = NULL, **diretorias = NULL;
 	int nFicheiros = 0, maxFicheiros = 1, nDiretorias = 0, maxDiretorias = 1;
 	FILE *fd = NULL;
-
-	void criarDiretoria(char* path);
-	void criarFicheiro(char* path);
+	
 	void duplicaBuffers(char* buffer);
 	char* criarPath(char* string, int tracos, int espacos, int flag);
-	int quantosTracos(char* string);
-	int quantosEspacos(char* string, int tracos);
-	char* concatenar(const char *s1, const char *s2);
 	void abrirFicheiro(char *file);
 %}
 %option noyywrap
@@ -73,7 +69,7 @@ FILE		[^ \/|?<>*:=""\n\t\r]+
 
 										yytext[yyleng - 1] = '\0';
 
-										int tracos = quantosTracos(yytext);
+										int tracos = quantosTracos(yytext, nDiretorias);
 										if(tracos != -1){
 											int espacos = quantosEspacos(yytext, tracos);
 											char* aux = criarPath(nome, tracos, espacos, 1);
@@ -94,7 +90,7 @@ FILE		[^ \/|?<>*:=""\n\t\r]+
 
 										yytext[yyleng - 1] = '\0';
 
-										int tracos = quantosTracos(yytext);
+										int tracos = quantosTracos(yytext, nDiretorias);
 										if(tracos != -1){
 											int espacos = quantosEspacos(yytext, tracos);
 											char* aux = criarPath(nome, tracos, espacos, 1);
@@ -119,7 +115,7 @@ FILE		[^ \/|?<>*:=""\n\t\r]+
 
 										yytext[yyleng - 1] = '\0';
 
-										int tracos = quantosTracos(yytext);
+										int tracos = quantosTracos(yytext, nDiretorias);
 										if(tracos != -1){
 											int espacos = quantosEspacos(yytext, tracos);
 											char* aux = criarPath(yytext, tracos, espacos, 0);
@@ -140,7 +136,7 @@ FILE		[^ \/|?<>*:=""\n\t\r]+
 
 										yytext[yyleng-1] = '\0';
 
-										int tracos = quantosTracos(yytext);
+										int tracos = quantosTracos(yytext, nDiretorias);
 										if(tracos != -1){
 											int espacos = quantosEspacos(yytext, tracos);
 											char* aux = criarPath(yytext, tracos, espacos, 0);
@@ -201,45 +197,10 @@ FILE		[^ \/|?<>*:=""\n\t\r]+
 
 %%
 
-/*
-	Funcao que determina a quantidade de espacos que aparecem no inicio de uma linha
-*/
-int quantosEspacos(char* string, int tracos){
-	int i, j = 0;
 
-	for(i = tracos; string[i] != '\0' && string[i] == ' '; i++, j++);
-	
-	return j;
-}
-
-/*
-	Funcao que determina a quantidade de tracos que aparecem no inicio de uma linha
-*/
-int quantosTracos(char* string){
-	int i;
-
-	for(i = 0; string[i] != '\0' && string[i] == '-'; i++);
-
-	if(i > nDiretorias)
-		return -1;
-
-	else
-		return i;
-}
-
-/*
-	Funcao que concatena duas strings, devolvendo o produto desta acao
-*/
-char* concatenar(const char *s1, const char *s2){
-    char *res = malloc(strlen(s1) + strlen(s2) + 1);
-    strcpy(res, s1);
-    strcat(res, s2);
-    return res;
-}
 
 /*
 	Funcao que determina o path de um dado ficheiro, a partir do número de tracos que ocorrem no inicio da linha
-
 	string - Linha a analisar. Esta poderá estar processada (apenas o nome que deve ocorrer no path) ou por processar;
 	tracos - Nº de tracos que ocorrem no inicio da linha por processar
 			 (no caso da linha esta processada, representa no numero de tracos que apareciam antes do processamento);
@@ -278,29 +239,9 @@ char* criarPath(char* string, int tracos, int espacos, int flag){
 	return path;
 }
 
-/*
-	Funcao que, dado um path, executa o comando para criar a diretoria correspondente
-*/
-void criarDiretoria(char* path){
-	char* aux = malloc((strlen(path) + 6) * sizeof(char));
-	sprintf(aux, "mkdir %s", path);
-	system(aux);										
-	free(aux);
-}
-
-/*
-	Funcao que, dado um path, executa o comando para criar o ficheiro correspondente
-*/
-void criarFicheiro(char* path){
-	char* aux = malloc((strlen(path) + 6) * sizeof(char));
-	sprintf(aux, "touch %s", path);
-	system(aux);										
-	free(aux);
-}
 
 /*
 	Funcao que duplica o tamanho de um buffer usado como variavel global
-
 	buffer - Serve para dizer qual o tipo de buffer a aumentar, se o buffer das diretorias ou o buffer dos ficheiros.
 */
 void duplicaBuffers(char* buffer){
@@ -344,7 +285,6 @@ void duplicaBuffers(char* buffer){
 
 /*
 	Funcao que verifica se um dado nome de ficheiro e valido e, em caso afirmativo, abre um apontador para esse ficheiro
-
 	file - o nome do ficheiro
 */
 void abrirFicheiro(char *file){

@@ -106,7 +106,7 @@ FILE		[^ \/|?<>*:="\n\t\r]+
 										}
 									}
 
-<Tree>^[-]*[ ]*{FILE}\/\n			{
+<Tree>^[-]+[ ]*{FILE}\/\n			{
 										if(nDiretorias == 0)
 											diretorias = malloc(maxDiretorias * sizeof(char*));
 

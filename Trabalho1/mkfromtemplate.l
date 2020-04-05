@@ -19,9 +19,9 @@
 %option noyywrap
 %x Meta Tree Make File
 
-EMAIL		[^\n\t\r@ ]+@([a-z]+\.)+[a-z]+
+EMAIL		[^ @\/|?<>*:="\n\t\r]+@([a-z]+\.)+[a-z]+
 EXT			([^.\n\t\r ]\.)*([^.\n\t\r ])+
-FILE		[^ \/|?<>*:=""\n\t\r]+
+FILE		[^ \/|?<>*:="\n\t\r]+
 
 %%
 									BEGIN 0;

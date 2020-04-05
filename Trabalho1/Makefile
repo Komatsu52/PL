@@ -4,7 +4,7 @@ mkfromtemplate : lex.yy.o mk.o
 		$(CC) -o mkfromtemplate mk.o lex.yy.o -ll
 
 lex.yy.o : lex.yy.c
-		$(CC) -Wall -c lex.yy.c
+		$(CC) -c lex.yy.c
 
 lex.yy.c : mkfromtemplate.l
 		flex mkfromtemplate.l

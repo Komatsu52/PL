@@ -32,14 +32,14 @@ FILE		[^ \/|?<>*:="\n\t\r]+
 
 ^===\ tree\n 						BEGIN Tree;
 
-==\ ({FILE}\/)*\{%name%\}\.{EXT}\n 			{
+==\ \{%name%\}\.{EXT}\n 			{
 										yytext[yyleng - 1] = '\0';
 										char *file = concatenar(nome, yytext + 11);
 										abrirFicheiro(file);
 										BEGIN File;
 									}
 
-==\ ({FILE}\/)*{FILE}(\.{EXT})?\n 				{
+==\ ({FILE}\/)*{FILE}(\.{EXT})?\n 	{
 										yytext[yyleng - 1] = '\0';
 										char *file = strdup(yytext + 3);
 										abrirFicheiro(file);

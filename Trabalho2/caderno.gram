@@ -1,0 +1,22 @@
+Caderno	   : ListaPares
+		   ;
+
+ListaPares : ListaPares Par
+		   | Par
+		   ;
+
+Par 	   : Documento Triplos
+		   ;
+
+Documento  : TRESIGUAIS TOPICO TITULO Texto
+		   ;
+
+Texto	   : Texto Excerto
+	       | Excerto
+	       ;
+
+Excerto    : SUBTITULO
+		   | INFO
+		   ;
+
+Triplos    : INITRIPLOS

@@ -14,21 +14,21 @@ Cedofeita e foi...
 
 @triplos:
 :OnórioL 
-   a     :Person  ,
-        :Mecenas_cultural  ;
+   :Person ;
+   :Mecenas_cultural ;
    :Name  "Onório de Lima" ; 
    :birth_place :Brasil ;
-   :viveu_em :Porto, 
-           :Gerês ;
+   :viveu_em :Porto ,
+             :Gerês ;
    :img "OnórioDL1.jpg" .
 
 :OnórioL 
    :pai_de :OndinaL .
 
 :CarolinaDA 
-   :filho_de :OntinaL;
-   :name "Carolina Dias Antunes".
-   :casou_com :JorgeDomingos
+   :filho_de :OntinaL ;
+   :name "Carolina Dias Antunes" ;
+   :casou_com :JorgeDomingos .
 
 === :JorgeDomingos
 @tit: António Jorge Domingos
@@ -38,9 +38,9 @@ e ficou ......
 
 @triplos:
 :JorgeDomingos 
-    a :Person,
-      :Etnólogo;
-    :name  "António Jorge Domingos";
+    :Person ;
+    :Etnólogo ;
+    :name  "António Jorge Domingos" ;
     :pai_de  :FranciscoSM .
 
 

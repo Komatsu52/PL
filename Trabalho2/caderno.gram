@@ -1,22 +1,46 @@
-Caderno	   : ListaPares
-		   ;
+Caderno	     : ListaPares
+		     ;
 
-ListaPares : ListaPares Par
-		   | Par
-		   ;
+ListaPares   : ListaPares Par
+		     | Par
+		     ;
 
-Par 	   : Documento Triplos
-		   ;
+Par 	     : Documento Triplos
+		     ;
 
-Documento  : TRESIGUAIS TOPICO TITULO Texto
-		   ;
+Documento    : TRESIGUAIS CONCEITO TITULO Texto
+		     ;
 
-Texto	   : Texto Excerto
-	       | Excerto
-	       ;
+Texto	     : Texto Excerto
+	         | Excerto
+	         ;
 
-Excerto    : SUBTITULO
-		   | INFO
-		   ;
+Excerto      : SUBTITULO
+		     | INFO
+		     ;
 
-Triplos    : INITRIPLOS
+Triplos      : INITRIPLOS ListaTriplos
+		     ;
+
+ListaTriplos : ListaTriplos Triplo
+			 | Triplo
+			 ;
+
+Triplo       : CONCEITO Relacoes '.'
+			 ;
+
+Relacoes	 : Relacoes ';' Relacao
+			 | Relacao
+			 ;
+
+Relacao		 : CONCEITO Tipo
+			 ;
+
+Tipo		 : Objetos
+			 | EXPRESSAO
+			 |
+			 ;
+
+Objetos		 : Objetos ',' CONCEITO
+			 | CONCEITO
+			 ;

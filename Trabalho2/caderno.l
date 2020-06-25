@@ -2,7 +2,7 @@
 #include "y.tab.h"
 %}
 
-CHARS   \xc3[\x80-\xbf]
+ACENTUADOS   \xc3[\x80-\xbf]
 
 %%
 
@@ -26,13 +26,13 @@ CHARS   \xc3[\x80-\xbf]
 										return INITRIPLOS;
 									}
 
-([a-zA-Z\-_]|{CHARS})+				{
+([a-zA-Z\-_]|{ACENTUADOS})+			{
 										yylval.svalue = strdup(yytext);
 										//printf("Expressao - '%s'\n", yylval.svalue);
 										return EXPRESSAO;
 									}
 
-:([a-zA-Z\-_]|{CHARS})+				{
+:([a-zA-Z\-_]|{ACENTUADOS})+		{
 										yylval.svalue = strdup(yytext+1);
 										//printf("Conceito - '%s'\n", yylval.svalue);
 										return CONCEITO;
@@ -59,18 +59,13 @@ CHARS   \xc3[\x80-\xbf]
 									}
 
 \"[^\n"]+\"							{
-										yytext[0] = '\0';
 										yytext[yyleng-1] = '\0';
 										yylval.svalue = strdup(yytext+1);
 										//printf("Expressao - '%s'\n", yylval.svalue);
 										return EXPRESSAO;
 									}
 
-^[^ :=\n#@][^:=\n#@]*				{
-										if(yytext[yyleng-2] == '\n'){
-											yytext[yyleng-2] = yytext[yyleng-1];
-											yytext[yyleng-1] = '\0';
-										}
+^[^ :=#@\n][^\n]*/[\n]				{
 										yylval.svalue = strdup(yytext);
 										//printf("Info - '%s'\n", yylval.svalue);
 										return INFO;

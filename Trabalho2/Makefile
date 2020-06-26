@@ -18,4 +18,5 @@ lex.yy.c : caderno.l y.tab.h
 .PHONY: clean
 
 clean:
-		rm -f lex.yy.c lex.yy.o y.tab.c y.tab.o y.tab.h processador
+		rm -f lex.yy.c lex.yy.o y.tab.c y.tab.o y.tab.h processador html/*
+		rmdir html

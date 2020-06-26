@@ -36,7 +36,7 @@ Tem aqui o email: onoriol@gmail.com, e o numero de telefone #912321111#.
    :birth_place :Brasil;
    :viveu_em :Porto,
              :Gerês;
-   :img "OnórioDL1.jpg".
+   :img "OnórioDL1.png".
 
 :OnórioL
    :pai_de :OndinaL.

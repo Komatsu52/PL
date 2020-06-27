@@ -15,7 +15,9 @@ int flag = 0;
 int htmls_size = 0;
 int htmls_inserted = 0;
 char **htmls = NULL;
-int *refers = NULL;
+char **refers = NULL;
+char **imagens = NULL;
+char *imagem = NULL;
 
 int existsHTML(char *file);
 void createHTML(char *file, char *title);
@@ -40,6 +42,8 @@ Caderno      : ListaPares 							{
 														if(!(existsHTML("indice")))
 															createHTML("indice", "Índice");
 
+        												endHTMLS();
+
 														orderHTMLS();
 
 														char *aux, c = 'A';
@@ -49,14 +53,15 @@ Caderno      : ListaPares 							{
 														for(int i = 0; i < htmls_inserted; i++){
 															if(c != toCapital(htmls[i][0])){
 																c = toCapital(htmls[i][0]);
-																fprintf(fp, "<h1>%c</h1>\n", c);
+																if(i == 0)
+																	fprintf(fp, "<h2>%c</h2>\n<ul>\n", c);
+																else
+																	fprintf(fp, "</ul>\n<h2>%c</h2>\n<ul>\n", c);
 															}
-															fprintf(fp, "<p><a href='%s.html'>%s</a></p>\n", htmls[i], htmls[i]);
+															fprintf(fp, "<li><a href='%s.html'>%s</a></li>\n", htmls[i], htmls[i]);
 														}
-														fprintf(fp, "</body>\n</html>");
+														fprintf(fp, "</ul>\n</body>\n</html>");
         												fclose(fp);
-
-        												endHTMLS();
     												}
              ;
 
@@ -81,7 +86,7 @@ Documento    : TRESIGUAIS CONCEITO TITULO Texto     {
         													fprintf(fp, "%s</p>\n", $4);
         													flag = 0;
         												}
-        												refers[posHTML($2)] = 0;
+
         												fclose(fp);
     												}
     		 ;
@@ -126,30 +131,40 @@ Triplo       : CONCEITO Relacoes '.'                {
 														if(!(existsHTML($1)))
 															createHTML($1, NULL);
 
-														char *aux;
-														asprintf(&aux, "html/%s.html", $1);
-
-														FILE *fp = fopen(aux, "a");
 														int pos = posHTML($1);
-														if(!(refers[pos])){
-        													fprintf(fp, "<h2>Referências</h2>\n%s\n", $2);
-        													refers[pos] = 1;
+														if(refers[pos] != NULL){
+        													char *aux = strdup(refers[pos]);
+        													asprintf(&(refers[pos]), "%s\n%s", aux, $2);
         												}
         												else
-        													fprintf(fp, "%s\n", $2);
-        												fclose(fp);
+        													asprintf(&(refers[pos]), "%s", $2);
+
+        												if(imagem != NULL){
+        													imagens[pos] = strdup(imagem);
+        													imagem = NULL;
+        												}
     												}
              ;
 
-Relacoes     : Relacoes ';' Relacao                 {   asprintf(&$$, "%s\n<p>%s</p>", $1, $3);    }
-             | Relacao                              {   asprintf(&$$, "<p>%s</p>", $1);    }
+Relacoes     : Relacoes ';' Relacao                 {   
+														if(strcmp("imagem", $3) != 0)
+															asprintf(&$$, "%s\n<li>%s</li>", $1, $3);
+														else
+															asprintf(&$$, "%s", $1);
+													}
+             | Relacao                              {   
+														if(strcmp("imagem", $1) != 0)
+             												asprintf(&$$, "<li>%s</li>", $1);    
+             										}
              ;
 
 Relacao      : TipoRelacao Objetos                  {   
-														if(!(strcmp($1, "img")))
-															asprintf(&$$, "<img src='../%s'/>", $2);  
+														if(!(strcmp($1, "img"))){
+															asprintf(&imagem, "<img src='../%s'/>", $2);
+															$$ = strdup("imagem");
+														}
 														else
-															asprintf(&$$, "%s %s", $1, $2);    
+															asprintf(&$$, "%s %s", $1, $2);
 													}
              ;
 
@@ -202,37 +217,61 @@ void createHTML(char *file, char *title){
     if(htmls_size == 0){
     	htmls_size = 1;
     	htmls = malloc(sizeof(char*) * htmls_size);
-    	refers = malloc(sizeof(int) * htmls_size);
+    	refers = malloc(sizeof(char*) * htmls_size);
+    	imagens = malloc(sizeof(char*) * htmls_size);
     }
 
     else if(htmls_inserted == htmls_size){
     	char **inserted = malloc(sizeof(char*) * htmls_size);
-    	int *refersAux = malloc(sizeof(char*) * htmls_size);
+    	char **refersAux = malloc(sizeof(char*) * htmls_size);
+    	char **imagensAux = malloc(sizeof(char*) * htmls_size);
 
     	for(int i = 0; i < htmls_size; i++){
     		inserted[i] = strdup(htmls[i]);
-    		refersAux[i] = refers[i];
+
+    		if(refers[i] != NULL)
+    			refersAux[i] = strdup(refers[i]);
+    		else
+    			refersAux[i] = NULL;
+
+    		if(imagens[i] != NULL)
+    			imagensAux[i] = strdup(imagens[i]);
+    		else
+    			imagensAux[i] = NULL;
     	}
 
     	free(htmls);
     	free(refers);
+    	free(imagens);
 
     	htmls_size += htmls_size;
     	htmls = malloc(sizeof(char*) * htmls_size);
-    	refers = malloc(sizeof(int) * htmls_size);
+    	refers = malloc(sizeof(char*) * htmls_size);
+    	imagens = malloc(sizeof(char*) * htmls_size);
 
     	for(int i = 0; i < htmls_inserted; i++){
     		htmls[i] = strdup(inserted[i]);
-    		refers[i] = refersAux[i];
+
+    		if(refersAux[i] != NULL)
+    			refers[i] = strdup(refersAux[i]);
+    		else
+    			refers[i] = NULL;
+
+    		if(imagensAux[i] != NULL)
+    			imagens[i] = strdup(imagensAux[i]);
+    		else
+    			imagens[i] = NULL;
     	}
 
     	free(inserted);
     	free(refersAux);
+    	free(imagensAux);
     }
 
     if(strcmp("indice", file) != 0){
     	htmls[htmls_inserted] = strdup(file);
-    	refers[htmls_inserted++] = 0;
+    	refers[htmls_inserted] = NULL;
+    	imagens[htmls_inserted++] = NULL;
     }
 }
 
@@ -251,9 +290,18 @@ void endHTMLS(){
 		asprintf(&aux, "html/%s.html", htmls[i]);
 	
 		FILE *fp = fopen(aux, "a");
+		if(refers[i] != NULL)
+			fprintf(fp, "<h2>Referências</h2>\n<ul>\n%s\n</ul>\n", refers[i]);
+
+		if(imagens[i] != NULL)
+			fprintf(fp, "<h2>Imagens</h2>\n%s\n", imagens[i]);
+
 		fprintf(fp, "</body>\n</html>");
+
     	fclose(fp);
 	}
+	free(refers);
+	free(imagens);
 }
 
 void orderHTMLS(){

@@ -29,7 +29,7 @@ Cedofeita e foi...
 Tem aqui o email: onoriol@gmail.com, e o numero de telefone #912321111#.
 
 @triplos:
-:OnórioL
+:OnorioL
    a :Person,
      :Mecenas_cultural;
    :Name "Onório de Lima";
@@ -38,7 +38,7 @@ Tem aqui o email: onoriol@gmail.com, e o numero de telefone #912321111#.
              :Gerês;
    :img "OnórioDL1.png".
 
-:OnórioL
+:OnorioL
    :pai_de :OndinaL.
 
 :CarolinaDA

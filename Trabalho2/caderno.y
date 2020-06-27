@@ -58,7 +58,13 @@ Caderno      : ListaPares 							{
 																else
 																	fprintf(fp, "</ul>\n<h2>%c</h2>\n<ul>\n", c);
 															}
-															fprintf(fp, "<li><a href='%s.html'>%s</a></li>\n", htmls[i], htmls[i]);
+
+															aux = strdup(htmls[i]);
+															for(int i = 0; i < strlen(aux); i++)
+																if(aux[i] == '_')
+																	aux[i] = ' ';
+
+															fprintf(fp, "<li><a href='%s.html'>%s</a></li>\n", htmls[i], aux);
 														}
 														fprintf(fp, "</ul>\n</body>\n</html>");
         												fclose(fp);
@@ -140,17 +146,25 @@ Triplo       : CONCEITO Relacoes '.'                {
         													asprintf(&(refers[pos]), "%s", $2);
 
         												if(imagem != NULL){
-        													imagens[pos] = strdup(imagem);
+        													if(imagens[pos] != NULL){
+        														char *aux = strdup(imagens[pos]);
+        														asprintf(&(imagens[pos]), "%s\n%s", aux, imagem);
+        													}
+        													else
+        														imagens[pos] = strdup(imagem);
+
         													imagem = NULL;
         												}
     												}
              ;
 
 Relacoes     : Relacoes ';' Relacao                 {   
-														if(strcmp("imagem", $3) != 0)
+														if((strcmp("imagem", $1) != 0) && (strcmp("imagem", $3) != 0))
 															asprintf(&$$, "%s\n<li>%s</li>", $1, $3);
-														else
+														else if(strcmp("imagem", $1) != 0)
 															asprintf(&$$, "%s", $1);
+														else if(strcmp("imagem", $3) != 0)
+															asprintf(&$$, "<li>%s</li>", $3);
 													}
              | Relacao                              {   
 														if(strcmp("imagem", $1) != 0)
@@ -160,7 +174,13 @@ Relacoes     : Relacoes ';' Relacao                 {
 
 Relacao      : TipoRelacao Objetos                  {   
 														if(!(strcmp($1, "img"))){
-															asprintf(&imagem, "<img src='../%s'/>", $2);
+															if(imagem != NULL){
+        														char *aux = strdup(imagem);
+        														asprintf(&(imagem), "%s\n<p><img src='../%s'/></p>", aux, $2);
+        													}
+															else
+																asprintf(&imagem, "<p><img src='../%s'/></p>", $2);
+
 															$$ = strdup("imagem");
 														}
 														else
@@ -182,10 +202,15 @@ Objetos      : Objetos ',' TipoObjeto               {   asprintf(&$$, "%s, %s", 
              ;
 
 TipoObjeto   : CONCEITO                             {   
-														if(!(existsHTML($1)))
-															createHTML($1, NULL);
+														char *aux = strdup($1);
+														for(int i = 0; i < strlen(aux); i++)
+															if(aux[i] == '_')
+																aux[i] = ' ';
 
-														asprintf(&$$, "<a href='%s.html'>%s</a>", $1, $1);
+														if(!(existsHTML($1)))
+															createHTML($1, aux);
+
+														asprintf(&$$, "<a href='%s.html'>%s</a>", $1, aux);
 													}
              | EXPRESSAO                            {   $$ = strdup($1);    }
              ;

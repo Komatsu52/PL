@@ -6,35 +6,21 @@ ACENTUADOS   \xc3[\x80-\xbf]
 
 %%
 
-\n\n/[^#@:=]						{
-										//printf("Paragrafo\n");
-										return PARAGRAFO;
-									}
+\n\n/[^#@:=]						return PARAGRAFO;
 
-[.,;]								{
-										//printf("Pontuacao - '%c'\n", yytext[0]);
-										return yytext[0];
-									}
+[.,;]								return yytext[0];
 
-^===							 	{
-										//printf("Iguais\n");
-										return TRESIGUAIS;
-									}
+^===							 	return TRESIGUAIS;
 
-^@triplos:\n				 		{
-										//printf("Triplos\n");
-										return INITRIPLOS;
-									}
+^@triplos:\n				 		return INITRIPLOS;
 
 ([a-zA-Z\-_]|{ACENTUADOS})+			{
 										yylval.svalue = strdup(yytext);
-										//printf("Expressao - '%s'\n", yylval.svalue);
 										return EXPRESSAO;
 									}
 
 :([a-zA-Z\-_]|{ACENTUADOS})+		{
 										yylval.svalue = strdup(yytext+1);
-										//printf("Conceito - '%s'\n", yylval.svalue);
 										return CONCEITO;
 									}
 
@@ -44,7 +30,6 @@ ACENTUADOS   \xc3[\x80-\xbf]
 											i++;
 										yytext[yyleng-1] = '\0';
 										yylval.svalue = strdup(yytext+i);
-										//printf("Titulo - '%s'\n", yylval.svalue);
 										return TITULO;
 									}
 
@@ -54,26 +39,20 @@ ACENTUADOS   \xc3[\x80-\xbf]
 											i++;
 										yytext[yyleng-1] = '\0';
 										yylval.svalue = strdup(yytext+i);
-										//printf("Subtitulo - '%s'\n", yylval.svalue);
 										return SUBTITULO;
 									}
 
 \"[^\n"]+\"							{
 										yytext[yyleng-1] = '\0';
 										yylval.svalue = strdup(yytext+1);
-										//printf("Expressao - '%s'\n", yylval.svalue);
 										return EXPRESSAO;
 									}
 
 ^[^ :=#@\n][^\n]*/[\n]				{
 										yylval.svalue = strdup(yytext);
-										//printf("Info - '%s'\n", yylval.svalue);
 										return INFO;
 									}
 
 [ \t\n\r] 							;
 
-.   								{
-										//printf("Deu merda\n");
-										return ERRO;
-									}
+.   								return ERRO;

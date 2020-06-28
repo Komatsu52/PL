@@ -4,14 +4,13 @@
 #include <string.h>
 #include <unistd.h>
 
-extern int yylex();
 extern FILE *yyin;
 extern int yylineno;
 extern char *yytext;
-
+extern int yylex();
 int yyerror();
-int flag = 0;
 
+int flag = 0;
 int htmls_size = 0;
 int htmls_inserted = 0;
 char **htmls = NULL;
@@ -34,7 +33,7 @@ char toCapital(char c);
 
 %token TRESIGUAIS CONCEITO TITULO SUBTITULO INFO PARAGRAFO INITRIPLOS EXPRESSAO ERRO
 %type <svalue> CONCEITO TITULO SUBTITULO INFO EXPRESSAO
-%type <svalue> Documento Texto Excerto 
+%type <svalue> Texto Excerto 
 %type <svalue> Relacoes Relacao TipoRelacao Objetos TipoObjeto
 %%
 
@@ -97,7 +96,6 @@ Documento    : TRESIGUAIS CONCEITO TITULO Texto     {
     												}
     		 ;
         
-
 Texto        : Texto Excerto                        {   asprintf(&$$, "%s%s", $1, $2);   }
              | Excerto                              {   $$ = strdup($1);    }
              ;

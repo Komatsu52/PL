@@ -12,6 +12,8 @@ ACENTUADOS   \xc3[\x80-\xbf]
 
 ^===							 	return TRESIGUAIS;
 
+^@meta:\n							return INIMETA;
+
 ^@triplos:\n				 		return INITRIPLOS;
 
 ([a-zA-Z\-_]|{ACENTUADOS})+			{

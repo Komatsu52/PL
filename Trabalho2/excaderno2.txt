@@ -1,3 +1,13 @@
+@meta:
+:filho_de :inverseOf :progenitor_de;
+:filha_de :inverseOf :progenitor_de;
+:mae_de   :inverseOf :descendente_de;
+:pai_de   :inverseOf :descendente_de;
+:birth_place :inverseof :merdas;
+:birth_place :inverseOf :origem_de;
+:Name :inverseOf :merdaszzz;
+:viveu_em    :inverseOf :morada_de.
+
 === :OnorioL
 @tit: Onório de Lima
 
@@ -15,7 +25,7 @@ Claro que há cenas piores, mas pronto, ele escusa de morrer, digo eu...
 O manolo batia legit mal, e parecia que so estava bem quando estava todo cego.
 Nunca vi ninguem tao atrasado...
 
-Pobre rapaz, era mesmod deficiente.
+Pobre rapaz, era mesmo deficiente.
 
 # Percurso cultural no Porto
 
@@ -41,10 +51,11 @@ Tem aqui o email: onoriol@gmail.com, e o numero de telefone #912321111#.
 
 :OnorioL
    :img "OnórioDL3.png";
+   :pai_de :CarolinaDA;
    :pai_de :OndinaL.
 
 :CarolinaDA
-   :filho_de :OntinaL;
+   :filha_de :OntinaL;
    :name "Carolina Dias Antunes";
    :casou_com :JorgeDomingos.
 
@@ -59,6 +70,8 @@ e ficou ......
     a :Person,
       :Etnólogo;
     :name "António Jorge Domingos";
+    :filho_de :ManuelS,
+              :AntoniaM;
     :pai_de :FranciscoSM.
 
 === :CarolinaDA
@@ -77,7 +90,8 @@ apesar de todas as queixas.
 @triplos:
 :CarolinaDA
     a :Person,
-      :Doméstica.
+      :Doméstica;
+    :filha_de :OnorioL.
 
 :CarolinaDA
     :morreu_em "12 de dezembro de 1923".

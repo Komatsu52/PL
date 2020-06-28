@@ -17,6 +17,12 @@ char **htmls = NULL;
 char **refers = NULL;
 char **imagens = NULL;
 char *imagem = NULL;
+char *relInv = NULL;
+int relInv_inserted = 0;
+
+char **inverse = NULL;
+int inv_size = 0;
+int inv_inserted = 0;
 
 int existsHTML(char *file);
 void createHTML(char *file, char *title);
@@ -25,19 +31,23 @@ void endHTMLS();
 void orderHTMLS();
 int compareStrings(char *str1, char *str2);
 char toCapital(char c);
+void addInverse(char *fst, char *snd);
+int isInverse(char *rel);
+void addTriploInv(int posRel, char *obj);
+void addRelInversa(char *con);
 %}
 
 %union{
     char *svalue;
 }
 
-%token TRESIGUAIS CONCEITO TITULO SUBTITULO INFO PARAGRAFO INITRIPLOS EXPRESSAO ERRO
+%token INIMETA TRESIGUAIS CONCEITO TITULO SUBTITULO INFO PARAGRAFO INITRIPLOS EXPRESSAO ERRO
 %type <svalue> CONCEITO TITULO SUBTITULO INFO EXPRESSAO
 %type <svalue> Texto Excerto 
 %type <svalue> Relacoes Relacao TipoRelacao Objetos TipoObjeto
 %%
 
-Caderno      : ListaPares 							{
+Caderno      : Meta ListaPares 							{
 														if(!(existsHTML("indice")))
 															createHTML("indice", "Índice");
 
@@ -45,7 +55,7 @@ Caderno      : ListaPares 							{
 
 														orderHTMLS();
 
-														char *aux, c = 'A';
+														char *aux, c = '-';
 														asprintf(&aux, "html/indice.html");
 
 														FILE *fp = fopen(aux, "a");
@@ -69,6 +79,20 @@ Caderno      : ListaPares 							{
         												fclose(fp);
     												}
              ;
+
+Meta         : INIMETA MetaTriplos '.'
+			 |
+			 ;
+
+MetaTriplos  : MetaTriplos ';' MetaTriplo
+			 | MetaTriplo
+			 ;
+
+MetaTriplo   : CONCEITO CONCEITO CONCEITO 			{	
+														if(!(strcmp($2, "inverseOf")))
+															addInverse($1, $3);
+													}
+			 ;
 
 ListaPares   : ListaPares Par
              | Par
@@ -143,6 +167,12 @@ Triplo       : CONCEITO Relacoes '.'                {
         												else
         													asprintf(&(refers[pos]), "%s", $2);
 
+        												if(relInv != NULL){
+        													addRelInversa($1);
+        													relInv = NULL;
+        													relInv_inserted = 0;
+        												}
+
         												if(imagem != NULL){
         													if(imagens[pos] != NULL){
         														char *aux = strdup(imagens[pos]);
@@ -183,6 +213,10 @@ Relacao      : TipoRelacao Objetos                  {
 														}
 														else
 															asprintf(&$$, "%s %s", $1, $2);
+
+														int rev = isInverse($1);
+														if(rev != -1)
+															addTriploInv(rev, $2);
 													}
              ;
 
@@ -367,6 +401,140 @@ char toCapital(char c){
 		return (c - 32);
 	else
 		return c;
+}
+
+void addInverse(char *fst, char *snd){
+	if(inv_size == 0){
+		inv_size = 2;
+		inverse = malloc(sizeof(char*) * inv_size);
+	}
+
+	if(inv_inserted == inv_size){
+		char **aux = malloc(sizeof(char*) * inv_size);
+
+		for(int i = 0; i < inv_size; i++)
+			aux[i] = strdup(inverse[i]);
+
+		free(inverse);
+
+		inv_size += inv_size;
+		inverse = malloc(sizeof(char*) * inv_size);
+
+		for(int i = 0; i < inv_inserted; i++)
+			inverse[i] = strdup(aux[i]);
+
+		free(aux);
+	}
+
+	for(int i = 0; i < strlen(fst); i++)
+		if(fst[i] == '_')
+			fst[i] = ' ';
+	inverse[inv_inserted++] = strdup(fst);
+	
+	for(int i = 0; i < strlen(snd); i++)
+		if(snd[i] == '_')
+			snd[i] = ' ';
+	inverse[inv_inserted++] = strdup(snd);
+}
+
+int isInverse(char *rel){
+	for(int i = 0; i < inv_inserted; i++)
+		if(!(strcmp(rel, inverse[i])))
+			return i;
+
+	return -1;
+}
+
+void addTriploInv(int posRel, char *obj){
+	char *token = strtok(obj, ",");
+	char *aux, *aux2, *relAux, *objAux = NULL;
+
+	while(token != NULL){
+		if(token[0] == ' ' && token[1] == '<'){
+			aux = strdup(token+10);
+			for(int i = 0; i < strlen(aux); i++){
+				if(aux[i] == '.'){
+					aux[i] = '\0';
+					break;
+				}
+			}
+
+		}
+		else if(token[0] == '<'){
+			aux = strdup(token+9);
+			for(int i = 0; i < strlen(aux); i++){
+				if(aux[i] == '.'){
+					aux[i] = '\0';
+					break;
+				}
+			}
+		}
+		else
+			aux = NULL;
+
+		if(aux != NULL){
+			if(objAux == NULL)
+				asprintf(&objAux, "%s", aux);
+			else{
+				aux2 = strdup(objAux);
+				asprintf(&objAux, "%s,%s", aux2, aux);
+			}
+		}
+
+		token = strtok(NULL, ",");
+	}
+
+	if(objAux != NULL){
+		if((posRel%2) == 0)
+			relAux = strdup(inverse[posRel+1]);
+		else
+			relAux = strdup(inverse[posRel-1]);
+
+		if(relInv == NULL)
+			asprintf(&relInv, "%s_%s", relAux, objAux);
+		else{
+			aux2 = strdup(relInv);
+			asprintf(&relInv, "%s;%s_%s", aux2, relAux, objAux);
+		}
+
+		relInv_inserted++;
+	}
+}
+
+void addRelInversa(char *con){
+	char *rel, *obj;
+	char *aux[relInv_inserted];
+	char *token = strtok(relInv, ";");
+
+	for(int i = 0; i < relInv_inserted; i++){
+		aux[i] = strdup(token);
+		token = strtok(NULL, ";");
+	}
+
+	for(int i = 0; i < relInv_inserted; i++){
+		rel = strtok(aux[i], "_");
+		obj = strtok(NULL, "_");
+
+		if(rel != NULL && obj != NULL){
+			token = strtok(obj, ",");
+
+			while(token != NULL){
+
+				int pos = posHTML(token);
+
+				if(pos != -1){
+					if(refers[pos] != NULL){
+        				char *aux2 = strdup(refers[pos]);
+        				asprintf(&(refers[pos]), "%s\n<li>%s <a href='%s.html'>%s</a></li>", aux2, rel, con, con);
+        			}
+        			else
+        				asprintf(&(refers[pos]), "<li>%s <a href='%s.html'>%s</a></li>", rel, con, con);
+        		}
+				
+				token = strtok(NULL, ",");
+			}
+		}
+	}
 }
 
 int main(int argc, char *argv[]){

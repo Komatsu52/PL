@@ -39,7 +39,7 @@ Relacao      : TipoRelacao Objetos
 
 TipoRelacao  : CONCEITO
              | EXPRESSAO
-             ;         
+             ;
 
 Objetos      : Objetos ',' TipoObjeto
              | TipoObjeto

@@ -3,45 +3,29 @@
 
 # Infância no Brasil
 
-Onório de Lima viveu entre os anos 1850 e 2020. Passou por imensas epidemias, como a gripe espanhola
-e o Corona Vírus. Ele esta agora, no entanto, prestes a morrer, pois engasgou-se com um feijão.
-
-Por favor, AJUDEM O HOMEM! Ele esta mesmo a bater mal, confiem.
-Claro que há cenas piores, mas pronto, ele escusa de morrer, digo eu...
-,se quiserem eu pago...
-
-#Vida do sbem
-
-O manolo batia legit mal, e parecia que so estava bem quando estava todo cego.
-Nunca vi ninguem tao atrasado...
-
-Pobre rapaz, era mesmod deficiente.
+Onório de Lima viveu ...
 
 # Percurso cultural no Porto
 
-Entre 1873 e 1930 Onório de Lima viveu no Porto, 
+Entre 1873 e 1930 Onório de Lima viveu no Porto,
 Cedofeita e foi...
 
 ...parágrafos separados por linhas em branco
 
-#Contactos
-
-Tem aqui o email: onoriol@gmail.com, e o numero de telefone #912321111#.
-
 @triplos:
-:OnorioL
-   a :Person,
-     :Mecenas_cultural;
-   :Name "Onório de Lima";
-   :birth_place :Brasil;
-   :viveu_em :Porto,
-             :Gerês;
+:OnorioL 
+   a    :Person  ,
+        :Mecenas_cultural  ;
+   :Name  "Onório de Lima" ; 
+   :birth_place :Brasil ;
+   :viveu_em :Porto, 
+             :Gerês ;
    :img "OnórioDL1.png".
 
-:OnorioL
-   :pai_de :OndinaL.
+:OnorioL 
+   :pai_de :OndinaL .
 
-:CarolinaDA
+:CarolinaDA 
    :filho_de :OntinaL;
    :name "Carolina Dias Antunes";
    :casou_com :JorgeDomingos.
@@ -53,8 +37,8 @@ O Dr. António Jorge Domingos nasceu em Angola
 e ficou ......
 
 @triplos:
-:JorgeDomingos
+:JorgeDomingos 
     a :Person,
       :Etnólogo;
-    :name "António Jorge Domingos";
-    :pai_de :FranciscoSM.
+    :name  "António Jorge Domingos";
+    :pai_de  :FranciscoSM.

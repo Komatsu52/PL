@@ -1,0 +1,158 @@
+@meta:
+
+:nasceu_em   :inverseOf :terra_natal_de ;
+:vive_em     :inverseOf :residência_de ;
+:amigo_de    :inverseOf :amigo_de ;
+:pai_de      :inverseOf :descendente_de ;
+:mae_de      :inverseOf :descendente_de ;
+:filho_de    :inverseOf :progenitor_de ;
+:filha_de    :inverseOf :progenitor_de ;
+:casado_com  :inverseOf :casado_com .
+
+=== :GoncaloE
+@tit: Goncalo José Azevedo Esteves
+
+# Biografia
+
+Nascido a 15 de dezembro de 1999, no hospital da Póvoa de Varzim, 
+ingressou na Escola Básica de Nogueira aos 5 anos.
+
+Com 9 anos, entrou na Escola André Soares, onde fez todo o ensino até ao 9º ano.
+..
+
+# Contactos
+
+Email: goncaloest@gmail.com
+
+Número Pessoal: #931231231
+
+@triplos:
+
+:GoncaloE 
+   a              :Person ,
+                  :Estudante ;
+   :img           "goncalo.jpg" ;
+   :interesse_em  :Informática ,
+                  :Biologia ;
+   :img           "goncalo.jpg" ;
+   :vive_em       :Braga .
+
+=== :RuiO
+@tit: Rui Nuno Borges Cruz Oliveira
+
+# Infância
+
+Desde cedo o Rui demonstrou ser uma criança responsável mas divertida, 
+amiga do seu amigo.
+
+Fez todo o seu percurso por escolas da cidade de Braga, até chegar à Universidade do Minho
+
+...
+
+# Principais Áreas de Interesses
+
+Interessa-se por tudo o que seja relacionado com desporto, tendo praticado futebol 
+durante diversos anos.
+
+@triplos:
+
+:RuiO
+   a          :Person ,
+              :Estudante ;
+   :amigo_de  :GoncaloE ;
+   :vive_em   :Braga ;
+   :img   "rui.jpg" .
+
+=== :JoséE
+@tit: José Manuel Monteiro Esteves
+
+# Biografia
+
+@triplos:
+
+:JoséE
+   a          :Person ,
+              :Trabalhador ;
+   :pai_de    :GoncaloE ;
+   :vive_em   :Braga .
+
+:JoséE
+   :nasceu_em  :Amarante .
+
+=== :CarlaE
+@tit: Carla Celeste da Silva Azevedo Esteves
+
+# Biografia
+
+@triplos:
+
+:CarlaE
+   a          :Person ,
+              :Trabalhador ;
+   :mae_de    :GoncaloE ;
+   :vive_em   :Braga .
+
+:RuiO
+   :amigo_de  :CarlaE .
+
+:CarlaE
+   :casado_com  :JoséE;
+   :filha_de    :ValdemarA ,
+                :RosalinaA .
+
+=== :CarlosO
+@tit: Carlos Jorge Cruz Oliveira
+
+# Biografia
+
+@triplos:
+
+:CarlosO
+   a          :Person ,
+              :Trabalhador ;
+   :pai_de    :RuiO ;
+   :vive_em   :Braga .
+
+=== :RosaO
+@tit: Rosa Maria Silva Borges Oliveira
+
+# Biografia
+
+@triplos:
+
+:RosaO
+   a            :Person ,
+                :Trabalhador ;
+   :mae_de      :RuiO ;
+   :casado_com  :CarlosO;
+   :vive_em     :Braga .
+
+=== :Braga
+@tit: Braga
+
+Com origem no Mesolítico o território que hoje é designado por Braga já existia como cidade antes de os romanos invadirem a 
+Península Ibérica e estava já habitada pela tribo dos Brácaros quando o imperador César Augusto a rebatizou como Bracara Augusta, 
+conforme atestam vestígios de aglomerados populacionais de há milhares de anos, estando comprovados estudos arqueológicos a 
+partir da Idade do Bronze.
+
+Sendo uma das mais antigas cidades europeias convertidas aos cristianismo, a história bracarense divide-se em diferentes períodos 
+que podem ser mais claramente divididos desta forma devido às influências que produziram no território: brácaros, romanos, 
+suevos, muçulmanos, a fundação de Portugal, a afirmação como Primado Católico, O Estado Novo e o Pós-25 de Abril.
+
+# Pré-História
+
+Os vestígios da presença humana na região vem de há milhares de anos, como comprovam vários achados no região. Em Braga um dos 
+achados mais antigos é a Mamoa de Lamas, um monumento megalítico edificado no período Neolítico. A sua descoberta revelou várias 
+informações sobre o passado da região. No entanto apenas se consegue provar a existência de aglomerados populacionais em Braga na 
+Idade do Bronze. Caracterizam-se por fossas e râmicas encontradas no Alto da Cividade, local onde existiria uma povoação e por 
+uma necrópole que terá existido na zona dos Granjinhos.
+
+@triplos:
+
+:Braga
+   :origem              :Romana ;
+   :img                 "braga.jpg" .
+
+:Braga
+   :conhecida_como      "Cidade dos Arcebispos" ;
+   :antiga_denominação  "Bracara Augusta".
